@@ -35,7 +35,6 @@
     BOOL _isGestureViewChanged;
     UITapGestureRecognizer *_singleTap;
     UITapGestureRecognizer *_doubleTap;
-    UIView *_cover;
 }
 
 //单例类的静态实例对象，因对象需要唯一性，故只能是static类型
@@ -57,9 +56,11 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     }
     
     [self.collectionView reloadData];
-    
+
+    [self show];
     //显示放大动画
     [self performZoomInAnimation];
+    
 }
 
 
@@ -285,9 +286,9 @@ static ZJPhotoBrowser *sharedBrowser = nil;
 
 
 - (void)show{
-    [UIApplication sharedApplication].statusBarHidden = YES;
+    self.view.hidden = YES; //先加载, 在放大动画的同时可以下载图片, 缩放完了再显示
     [_presentedByVC presentViewController:self animated:NO completion:^{
-        [_cover removeFromSuperview];
+        [UIApplication sharedApplication].statusBarHidden = YES;
     }];
 
     CGFloat offsetY = _currentIndex * (screenWidth + photoPadding);
@@ -369,7 +370,6 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     UIView *cover = [[UIView alloc] initWithFrame:screenKeyWindow.bounds];
     cover.backgroundColor = [UIColor clearColor];
     [screenKeyWindow addSubview:cover];
-    _cover = cover;
     
     //2.添加图片
     [cover addSubview:imgView];
@@ -389,10 +389,9 @@ static ZJPhotoBrowser *sharedBrowser = nil;
         _singleTap.enabled = YES;
         _doubleTap.enabled = YES;
         
+        [cover removeFromSuperview];
         if (isZoomIn) { //图片放大完显示view
-            [self show];
-        } else {
-            [cover removeFromSuperview];
+            self.view.hidden = NO;
         }
     }];
 }
