@@ -5,7 +5,9 @@
 //  Created by Zj on 16/11/4.
 //  Copyright © 2016年 Zj. All rights reserved.
 //
-#define screenScale screenWidth / screenHeight
+#define ZJScreenWidth [UIScreen mainScreen].bounds.size.width
+#define ZJScreenHeight [UIScreen mainScreen].bounds.size.height
+#define ZJScreenScale ZJScreenWidth / ZJScreenHeight
 
 #import "ZJGestureView.h"
 #import "UIImageView+WebCache.h"
@@ -48,14 +50,14 @@
     CGSize imgSize = placeholder.size;                                      //获取缩略图图片size
     CGFloat imgScale = imgSize.width/imgSize.height;                        //计算图片宽高比, 用于判断是否是长图
 
-    if (imgScale >= screenScale) {//不是长图
+    if (imgScale >= ZJScreenScale) {//不是长图
         _imageView.frame = self.bounds;
         _imageView.contentMode = UIViewContentModeScaleAspectFit;
         
         _scrollView.contentSize = _imageView.frame.size;
     } else {//长图
 
-        CGSize size = CGSizeMake(screenWidth, screenWidth * (1/imgScale));
+        CGSize size = CGSizeMake(ZJScreenWidth, ZJScreenWidth * (1/imgScale));
 
         _imageView.frame = CGRectMake(0, 0, size.width, size.height);
         _imageView.contentMode = UIViewContentModeScaleAspectFill;          //必须设置, 否则会有时候图像显示不正确
@@ -67,28 +69,32 @@
         [_imageView sd_setImageWithURL:url placeholderImage:placeholder options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize) {
             [self addSubview:self.watingView];
             
-            double process = receivedSize * 1.0/ expectedSize;
-            self.watingView.progress = process;
+            if (expectedSize) {
+                double process = receivedSize * 1.0/ expectedSize;
+                self.watingView.progress = process;
+            } else {
+                self.watingView.progress = 1.0;
+            }
+            
         } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
             
             if (error) {
                 [self showError];
             } else {
                 //根据下载下来的图片计算出来最大缩放大小
-                if (imgScale >= screenScale) {//不是长图
-                    _scrollView.maximumZoomScale = MAX(image.size.width / screenWidth, 1.2);
+                if (imgScale >= ZJScreenScale) {//不是长图
+                    _scrollView.maximumZoomScale = MAX(image.size.width / ZJScreenWidth, 1.2);
                 } else {//长图
-                    _scrollView.maximumZoomScale = MAX(image.size.height / screenHeight, 1.2);
+                    _scrollView.maximumZoomScale = MAX(image.size.height / ZJScreenHeight, 1.2);
                 }
             }
         }];
     } else { //若没传入url 则根据占位图显示图片
         _imageView.image = placeholder;
-        
-        if (imgScale >= screenScale) {//不是长图
-            _scrollView.maximumZoomScale = MAX(placeholder.size.width / screenWidth, 1.2);
+        if (imgScale >= ZJScreenScale) {//不是长图
+            _scrollView.maximumZoomScale = MAX(placeholder.size.width / ZJScreenWidth, 1.2);
         } else {//长图
-            _scrollView.maximumZoomScale = MAX(placeholder.size.height / screenHeight, 1.2);
+            _scrollView.maximumZoomScale = MAX(placeholder.size.height / ZJScreenHeight, 1.2);
         }
     }
 }

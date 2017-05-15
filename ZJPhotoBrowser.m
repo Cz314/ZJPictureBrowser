@@ -17,6 +17,7 @@
 #import "ZJPhotoBrowserCell.h"
 #import "ZJGestureView.h"
 #import "UIImageView+WebCache.h"
+#import "UIImage+ZJExtension.h"
 
 @interface ZJPhotoBrowser () <UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 @property (nonatomic, strong) UILabel *conuterLabel;
@@ -42,9 +43,9 @@ static ZJPhotoBrowser *sharedBrowser = nil;
 
 - (void)showPhotoBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;{
     _currentIndex = index;
-    self.imgViews = imgViews;
     _urls = urls;
     _presentedByVC = presentedByVC;
+    self.imgViews = imgViews;
     
     if (!_urls.count) { //若没传入图片, 则计算imgViews中没有隐藏的图片个数
         _visibleImgViewCount = 0;
@@ -60,7 +61,14 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     [self show];
     //显示放大动画
     [self performZoomInAnimation];
+}
+
+
+- (void)reloadDataWithUrls:(NSArray *)urlsArray{
+    _urls = urlsArray;
     
+    [self.collectionView reloadData];
+    [self setCounterWithTag:_currentIndex totalCount:MAX(_urls.count, _visibleImgViewCount)];
 }
 
 
@@ -82,16 +90,16 @@ static ZJPhotoBrowser *sharedBrowser = nil;
         self.view.frame = CGRectMake(0, 0, screenWidth, screenHeight);
         self.view.backgroundColor = [UIColor blackColor];
         _isGestureViewChanged = NO;
+        
+        [self prepared];
     }
     return self;
 }
 
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
+- (void)prepared{
     [self createColloctionView];
-
+    
     //监听单击屏幕
     _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapScreen)];
     [self.view addGestureRecognizer:_singleTap];
@@ -115,13 +123,26 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     
     NSMutableArray *tempArray = [NSMutableArray array];
     CGRect zoomOutRect;
-    int i = 0;
+    NSInteger i = 0;
     for (UIImageView *imgView in imgViews) {
         zoomOutRect = [imgView.superview convertRect:imgView.frame toView:screenKeyWindow];
         
         [tempArray addObject:[NSValue valueWithCGRect:zoomOutRect]];
         i++;
     }
+    
+    
+    if (tempArray.count < _urls.count) {
+        NSInteger maxJ = _urls.count - tempArray.count;
+        for (NSInteger j = 0; j < maxJ; j++) {
+            if (tempArray.count <= _currentIndex) {
+                [tempArray insertObject:[NSValue valueWithCGRect:CGRectZero] atIndex:0];
+            } else {
+                [tempArray addObject:[NSValue valueWithCGRect:CGRectZero]];
+            }
+        }
+    }
+    
     _zoomOutRectArray = [tempArray copy];
 }
 
@@ -129,10 +150,10 @@ static ZJPhotoBrowser *sharedBrowser = nil;
 - (void)createColloctionView{
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     [layout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
-    layout.itemSize = self.view.bounds.size;
+    layout.itemSize = [UIScreen mainScreen].bounds.size;
     layout.minimumLineSpacing = photoPadding;
     
-    _collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:[UIScreen mainScreen].bounds collectionViewLayout:layout];
     _collectionView.delegate = self;
     _collectionView.dataSource = self;
     _collectionView.pagingEnabled = NO; //有间距不能自动分页, 需重写scrollview的代理方法
@@ -188,7 +209,7 @@ static ZJPhotoBrowser *sharedBrowser = nil;
                 self.conuterLabel.text = nil;
             } else {
                 //创建富文本, 调整字间距
-                NSString *text = [NSString stringWithFormat:@"%lu/%lu", tag + 1, count];
+                NSString *text = [NSString stringWithFormat:@"%li/%li", (long)tag + 1, (long)count];
                 
                 NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
                 paragraphStyle.alignment = NSTextAlignmentCenter;
@@ -253,8 +274,8 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     if (scrollView.zoomScale == 1) { //判断现在是否处于缩放状态, 若不处于缩放状态则还原
         if (!doubleTap) return; //若处于未缩放状态, 但由singleTapScreen调用(传入nil) 则不缩放
         
-        CGFloat zoomW = screenWidth / scrollView.maximumZoomScale;
-        CGFloat zoomH = screenHeight / scrollView.maximumZoomScale;
+        CGFloat zoomW = screenWidth / MIN(scrollView.maximumZoomScale, 2);
+        CGFloat zoomH = screenHeight / MIN(scrollView.maximumZoomScale, 2);
         CGFloat zoomX = doubleTapPoint.x - zoomW / 2  + scrollView.contentOffset.x;
         CGFloat zoomY = doubleTapPoint.y - zoomH / 2  + scrollView.contentOffset.y;
         CGRect zoomRect = CGRectMake(zoomX, zoomY, zoomW, zoomH);
@@ -287,6 +308,7 @@ static ZJPhotoBrowser *sharedBrowser = nil;
 
 - (void)show{
     self.view.hidden = YES; //先加载, 在放大动画的同时可以下载图片, 缩放完了再显示
+    
     [_presentedByVC presentViewController:self animated:NO completion:^{
         [UIApplication sharedApplication].statusBarHidden = YES;
     }];
@@ -302,7 +324,7 @@ static ZJPhotoBrowser *sharedBrowser = nil;
 - (void)performZoomInAnimation{
     
     //1.获取图片
-    UIImageView *thumbnailPicView = _imgViews[_currentIndex];
+    UIImageView *thumbnailPicView = _imgViews.count > _currentIndex ? _imgViews[_currentIndex] : [_imgViews lastObject];
     CGSize imgSize = thumbnailPicView.image.size;
     CGFloat imgScale = imgSize.width/imgSize.height;
     
@@ -327,7 +349,9 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     //将bounds及center转换为frame
     CGRect zoomInRect = CGRectMake(center.x - rect.size.width / 2, center.y - rect.size.height / 2, rect.size.width, rect.size.height);
     
+    //4.动画
     [self animateImageView:imgViewCopy toRect:zoomInRect];
+    
 }
 
 
@@ -361,6 +385,7 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     
     //5.重置scrollView
     [cell.gestureView.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
+    
 }
 
 
@@ -368,32 +393,53 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     
     //1.设置蒙板
     UIView *cover = [[UIView alloc] initWithFrame:screenKeyWindow.bounds];
-    cover.backgroundColor = [UIColor clearColor];
+    cover.backgroundColor = [UIColor blackColor];
     [screenKeyWindow addSubview:cover];
     
     //2.添加图片
     [cover addSubview:imgView];
     
     //3.判断是放大还是缩小图片
-    BOOL isZoomIn = destinRect.size.width > imgView.frame.size.width;
+    BOOL isZoomIn = destinRect.size.height > imgView.frame.size.height;
+   
+    UIImageView *thumbnailPicView = _imgViews.count > _currentIndex ? _imgViews[_currentIndex] : [_imgViews lastObject];
     
-    //4.动画
-    [UIView animateWithDuration:durationTime animations:^{
-        imgView.frame = destinRect;
-//        //淡出   
-//        if (!isZoomIn) {
-//            imgView.alpha = 0.3;
-//        }
-    } completion:^(BOOL finished) {
-        
-        _singleTap.enabled = YES;
-        _doubleTap.enabled = YES;
-        
-        [cover removeFromSuperview];
-        if (isZoomIn) { //图片放大完显示view
-            self.view.hidden = NO;
-        }
-    }];
+    //4.动画之前隐藏小图
+    if (thumbnailPicView.tag != _currentIndex && !isZoomIn) {
+        //5.动画
+        [UIView animateWithDuration:durationTime animations:^{
+            imgView.alpha = 0;
+            //淡出
+            cover.backgroundColor = [UIColor clearColor];
+            
+        } completion:^(BOOL finished) {
+            _singleTap.enabled = YES;
+            _doubleTap.enabled = YES;
+            
+            [cover removeFromSuperview];
+        }];
+    } else {
+        thumbnailPicView.hidden = YES;
+        //5.动画
+        [UIView animateWithDuration:durationTime animations:^{
+            imgView.frame = destinRect;
+            //        //淡出
+            if (!isZoomIn) {
+                cover.backgroundColor = [UIColor clearColor];
+            }
+            
+        } completion:^(BOOL finished) {
+            _singleTap.enabled = YES;
+            _doubleTap.enabled = YES;
+            
+            [cover removeFromSuperview];
+            //恢复小图
+            thumbnailPicView.hidden = NO;
+            if (isZoomIn) { //图片放大完显示view
+                self.view.hidden = NO;
+            }
+        }];
+    }
 }
 
 
@@ -407,11 +453,21 @@ static ZJPhotoBrowser *sharedBrowser = nil;
   
     ZJPhotoBrowserCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"reUsedCell" forIndexPath:indexPath];
  
-    UIImageView *thumbnailPicView = _imgViews[indexPath.row];                  //取出原缩略图
+    UIImageView *thumbnailPicView;
+    if (indexPath.row < _imgViews.count) {
+        thumbnailPicView = _imgViews[indexPath.row];                  //取出原缩略图
+    } else {
+        thumbnailPicView = [[UIImageView alloc] initWithImage:[UIImage createImageWithColor:[UIColor blackColor]]];
+    }
 
     //设置图片, 并显示下载进度图
     if (_urls.count) {
-        [cell.gestureView setImageWithURL:_urls[indexPath.row] placeholderImage:thumbnailPicView.image];
+        if ([_urls[indexPath.row] isEqualToString:@"noImg"]) {
+            [cell.gestureView setImageWithURL:nil placeholderImage:thumbnailPicView.image];
+        } else {
+            NSURL *url = [_urls[indexPath.row] isKindOfClass:[NSString class]] ? [NSURL URLWithString:_urls[indexPath.row]] : _urls[indexPath.row];
+            [cell.gestureView setImageWithURL:url placeholderImage:thumbnailPicView.image];
+        }
     } else {
         [cell.gestureView setImageWithURL:nil placeholderImage:thumbnailPicView.image];
     }

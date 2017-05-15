@@ -37,6 +37,11 @@ typedef enum : NSUInteger {
 + (ZJPhotoBrowser *)sharedBrowser;
 
 /**
+ 传入urls的数组重新加载数据
+ */
+- (void)reloadDataWithUrls:(NSArray *)urlsArray;
+
+/**
  显示相册
 
  @param urls     需要加载图片类型为NSURL的数组, 浏览器页数优先根据urls.count来确定; 若传入空, 加载imgViews的图片, 浏览器页数根据imgViews中hidden属性为NO的数量确定

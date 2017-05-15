@@ -25,4 +25,10 @@
 }
 
 
+- (void)prepareForReuse{
+    [super prepareForReuse];
+    
+    [_gestureView.scrollView setContentOffset:CGPointMake(0, 0) animated:NO];
+}
+
 @end
