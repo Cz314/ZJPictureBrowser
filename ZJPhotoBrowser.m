@@ -400,7 +400,7 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     [cover addSubview:imgView];
     
     //3.判断是放大还是缩小图片
-    BOOL isZoomIn = destinRect.size.height > imgView.frame.size.height;
+    BOOL isZoomIn = self.view.hidden;
    
     UIImageView *thumbnailPicView = _imgViews.count > _currentIndex ? _imgViews[_currentIndex] : [_imgViews lastObject];
     
