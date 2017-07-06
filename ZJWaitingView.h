@@ -23,6 +23,6 @@ typedef enum {
 /**
  传入进度条样式, 默认为环形
  */
-@property (nonatomic, assign) int mode;
+@property (nonatomic, assign) ZJWaitingViewMode mode;
 
 @end

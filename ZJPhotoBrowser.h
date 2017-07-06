@@ -32,7 +32,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) UIImage *currentImage;
 
 /**
- 获取单例对象
+ 快速创建对象
  */
 + (ZJPhotoBrowser *)sharedBrowser;
 
