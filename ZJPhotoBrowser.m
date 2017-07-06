@@ -38,8 +38,7 @@
     UITapGestureRecognizer *_doubleTap;
 }
 
-//单例类的静态实例对象，因对象需要唯一性，故只能是static类型
-static ZJPhotoBrowser *sharedBrowser = nil;
+ZJPhotoBrowser *sharedBrowser = nil;
 
 - (void)showPhotoBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;{
     _currentIndex = index;
@@ -351,7 +350,6 @@ static ZJPhotoBrowser *sharedBrowser = nil;
     
     //4.动画
     [self animateImageView:imgViewCopy toRect:zoomInRect];
-    
 }
 
 
@@ -437,7 +435,7 @@ static ZJPhotoBrowser *sharedBrowser = nil;
             thumbnailPicView.hidden = NO;
             if (isZoomIn) { //图片放大完显示view
                 self.view.hidden = NO;
-            }
+            } 
         }];
     }
 }
@@ -506,44 +504,11 @@ static ZJPhotoBrowser *sharedBrowser = nil;
 }
 
 
-#pragma mark ---单例对象的实现---
-/**
- 单例模式对外的唯一接口，用到的dispatch_once函数在一个应用程序内只会执行一次，且dispatch_once能确保线程安全
- */
+#pragma mark ---快速创建---
 + (ZJPhotoBrowser *)sharedBrowser{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        if (sharedBrowser == nil) {
-            sharedBrowser = [[self alloc] init];
-        }
-    });
+    sharedBrowser = [[self alloc] init];
     return sharedBrowser;
 }
 
-
-/**
- 覆盖该方法主要确保当用户通过[[Singleton alloc] init]创建对象时对象的唯一性，alloc方法会调用该方法，只不过zone参数默认为nil，因该类覆盖了allocWithZone方法，所以只能通过其父类分配内存，即[super allocWithZone:zone]
- */
-+ (instancetype)allocWithZone:(struct _NSZone *)zone{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        if (sharedBrowser == nil) {
-            sharedBrowser = [super allocWithZone:zone];
-        }
-    });
-    return sharedBrowser;
-}
-
-
-//覆盖该方法主要确保当用户通过copy方法产生对象时对象的唯一性
-- (id)copy{
-    return self;
-}
-
-
-//覆盖该方法主要确保当用户通过mutableCopy方法产生对象时对象的唯一性
-- (id)mutableCopy{
-    return self;
-}
 
 @end
