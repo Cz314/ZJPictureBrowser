@@ -34,7 +34,7 @@ typedef enum : NSUInteger {
 /**
  快速创建对象
  */
-+ (ZJPhotoBrowser *)sharedBrowser;
++ (ZJPhotoBrowser *)browser;
 
 /**
  传入urls的数组重新加载数据

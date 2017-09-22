@@ -38,7 +38,7 @@
     UITapGestureRecognizer *_doubleTap;
 }
 
-ZJPhotoBrowser *sharedBrowser = nil;
+ZJPhotoBrowser *browser = nil;
 
 - (void)showPhotoBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;{
     _currentIndex = index;
@@ -72,7 +72,7 @@ ZJPhotoBrowser *sharedBrowser = nil;
 
 
 - (BOOL)isPhotoBrowserVisible{
-    return (sharedBrowser.isViewLoaded && sharedBrowser.view.window);
+    return (browser.isViewLoaded && browser.view.window);
 }
 
 
@@ -505,9 +505,9 @@ ZJPhotoBrowser *sharedBrowser = nil;
 
 
 #pragma mark ---快速创建---
-+ (ZJPhotoBrowser *)sharedBrowser{
-    sharedBrowser = [[self alloc] init];
-    return sharedBrowser;
++ (ZJPhotoBrowser *)browser{
+    browser = [[self alloc] init];
+    return browser;
 }
 
 

@@ -11,11 +11,8 @@
 
 @implementation ZJPhotoBrowserCell
 
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self)
-    {      
+- (id)initWithFrame:(CGRect)frame{
+    if (self = [super initWithFrame:frame]) {
         _gestureView = [[ZJGestureView alloc] init];
         _gestureView.frame = self.bounds;
         [self.contentView addSubview:_gestureView];

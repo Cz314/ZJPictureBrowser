@@ -49,8 +49,7 @@
     [[UIColor whiteColor] set];
     
     switch (self.mode) {
-        case ZJWaitingViewModePie:
-        {
+        case ZJWaitingViewModePie: {
             CGFloat radius = MIN(rect.size.width * 0.5, rect.size.height * 0.5) - ZJWaitingViewItemMargin;
             
             CGFloat w = radius * 2 + ZJWaitingViewItemMargin;
@@ -71,8 +70,7 @@
         }
             break;
             
-        default:
-        {
+        default: {
             CGContextSetLineWidth(ctx, self.bounds.size.width / 4);
             CGContextSetLineCap(ctx, kCGLineCapRound);
             CGFloat to = - M_PI * 0.5 + self.progress * M_PI * 2 + 0.05; // 初始值0.05
