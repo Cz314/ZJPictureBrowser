@@ -17,7 +17,6 @@
 #import "ZJPhotoBrowserCell.h"
 #import "ZJGestureView.h"
 #import "UIImageView+WebCache.h"
-#import "UIImage+ZJExtension.h"
 
 @interface ZJPhotoBrowser () <UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 @property (nonatomic, strong) UILabel *conuterLabel;
@@ -37,8 +36,6 @@
     UITapGestureRecognizer *_singleTap;
     UITapGestureRecognizer *_doubleTap;
 }
-
-ZJPhotoBrowser *browser = nil;
 
 - (void)showPhotoBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;{
     _currentIndex = index;
@@ -72,7 +69,7 @@ ZJPhotoBrowser *browser = nil;
 
 
 - (BOOL)isPhotoBrowserVisible{
-    return (browser.isViewLoaded && browser.view.window);
+    return (self.isViewLoaded && self.view.window);
 }
 
 
@@ -129,7 +126,6 @@ ZJPhotoBrowser *browser = nil;
         [tempArray addObject:[NSValue valueWithCGRect:zoomOutRect]];
         i++;
     }
-    
     
     if (tempArray.count < _urls.count) {
         NSInteger maxJ = _urls.count - tempArray.count;
@@ -241,19 +237,14 @@ ZJPhotoBrowser *browser = nil;
     _singleTap.enabled = NO;
     _doubleTap.enabled = NO;
     
-    [self doubleTapScreen:nil];
-    
-    if (_isGestureViewChanged) { //代表没有放大也没有滚动
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self dismissViewControllerAnimated:NO completion:nil];
-            
-            [self performZoomOutAnimation];
-        });
-    } else {
-        [self dismissViewControllerAnimated:NO completion:nil];
-        
-        [self performZoomOutAnimation];
+    ZJPhotoBrowserCell *cell = [self.collectionView.visibleCells firstObject];
+    UIScrollView *scrollView = cell.gestureView.scrollView;
+    if (scrollView.zoomScale != 1) {
+        _isGestureViewChanged = YES;
     }
+    
+    [self dismissViewControllerAnimated:NO completion:nil];
+    [self performZoomOutAnimation];
 }
 
 
@@ -278,13 +269,12 @@ ZJPhotoBrowser *browser = nil;
         CGFloat zoomX = doubleTapPoint.x - zoomW / 2  + scrollView.contentOffset.x;
         CGFloat zoomY = doubleTapPoint.y - zoomH / 2  + scrollView.contentOffset.y;
         CGRect zoomRect = CGRectMake(zoomX, zoomY, zoomW, zoomH);
-        
-        _isGestureViewChanged = YES; //记录GestureView已经改变
 
+        _isGestureViewChanged = YES;
         [cell.gestureView.scrollView zoomToRect:zoomRect animated:YES];
     } else {
+        
         _isGestureViewChanged = scrollView.contentOffset.y != 0; //若还原后, 且scrollView未滚动, 则GestureView未改变
-       
         [scrollView setZoomScale:1.0f animated:YES];
     }
     
@@ -316,6 +306,25 @@ ZJPhotoBrowser *browser = nil;
     self.collectionView.contentOffset = CGPointMake(offsetY, 0);
     
     [self setCounterWithTag:_currentIndex totalCount:MAX(_urls.count, _visibleImgViewCount)];
+}
+
+
+- (UIImage *)createImageWithColor:(UIColor *)color{
+    
+    // 1.开启上下文
+    CGRect rect=CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    
+    // 2.填充颜色
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    
+    // 3.取出图像, 关闭上下文
+    UIImage *theImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return theImage;
 }
 
 
@@ -362,22 +371,26 @@ ZJPhotoBrowser *browser = nil;
     UIImageView *imgView = cell.gestureView.imageView;
     CGSize imgSize = imgView.image.size;
     CGFloat imgScale = imgSize.width/imgSize.height; //获取图片的宽高比
-    
+
     //2.复制图片
     UIImageView *imgViewCopy = [[UIImageView alloc] init];
     imgViewCopy.contentMode = UIViewContentModeScaleAspectFill;
     imgViewCopy.clipsToBounds = YES;
     imgViewCopy.image = imgView.image;
 
-    //3.按照cell中图片的size设置图片的frame
-    CGRect rect = imgViewCopy.bounds;
-    rect.size.width = screenWidth;
-    rect.size.height = rect.size.width * (1 / imgScale);
+    //3.设置图片的frame
     //要根据scrollview滚动的距离算出真实中心点
     CGPoint scrollCenter = CGPointMake(imgView.center.x - cell.gestureView.scrollView.contentOffset.x, imgView.center.y - cell.gestureView.scrollView.contentOffset.y);
     imgViewCopy.center = scrollCenter;
+    CGRect rect = imgView.frame;
+    if (_isGestureViewChanged) { //放大了就从当前尺寸变化
+        rect.size.height = rect.size.width * (1 / imgScale);
+    } else { //为放大从原始尺寸变化
+        rect.size.width = screenWidth;
+    }
+    rect.size.height = rect.size.width * (1 / imgScale);
     imgViewCopy.bounds = rect;
-
+    
     //4.动画
     [self animateImageView:imgViewCopy toRect:[_zoomOutRectArray[_currentIndex] CGRectValue]];
     
@@ -455,7 +468,7 @@ ZJPhotoBrowser *browser = nil;
     if (indexPath.row < _imgViews.count) {
         thumbnailPicView = _imgViews[indexPath.row];                  //取出原缩略图
     } else {
-        thumbnailPicView = [[UIImageView alloc] initWithImage:[UIImage createImageWithColor:[UIColor blackColor]]];
+        thumbnailPicView = [[UIImageView alloc] initWithImage:[self createImageWithColor:[UIColor blackColor]]];
     }
 
     //设置图片, 并显示下载进度图
@@ -506,7 +519,7 @@ ZJPhotoBrowser *browser = nil;
 
 #pragma mark ---快速创建---
 + (ZJPhotoBrowser *)browser{
-    browser = [[self alloc] init];
+    ZJPhotoBrowser *browser = [[self alloc] init];
     return browser;
 }
 
