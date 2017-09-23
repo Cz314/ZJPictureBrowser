@@ -21,7 +21,7 @@
     CGFloat _absoluteScale;
     CGFloat _lastScale;
 }
-a's'da's'd'a
+
 
 - (instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
