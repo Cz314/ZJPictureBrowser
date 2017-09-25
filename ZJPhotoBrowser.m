@@ -30,17 +30,20 @@
     NSArray *_zoomOutRectArray;
     NSArray *_urls;
     UIViewController *_presentedByVC;
+    UIImage *_screenShot;
     NSInteger _currentIndex;
     NSInteger _visibleImgViewCount;
     BOOL _isGestureViewChanged;
     UITapGestureRecognizer *_singleTap;
     UITapGestureRecognizer *_doubleTap;
+    UIPanGestureRecognizer *_pan;
 }
 
 - (void)showPhotoBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;{
     _currentIndex = index;
     _urls = urls;
     _presentedByVC = presentedByVC;
+    _screenShot = [self captureScreen:screenKeyWindow];
     self.imgViews = imgViews;
     
     if (!_urls.count) { //若没传入图片, 则计算imgViews中没有隐藏的图片个数
@@ -96,16 +99,21 @@
 - (void)prepared{
     [self createColloctionView];
     
-    //监听单击屏幕
-    _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapScreen)];
-    [self.view addGestureRecognizer:_singleTap];
+    //滑动关闭手势
+    _pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panScreen:)];
+    [self.view addGestureRecognizer:_pan];
     
     //监听双击屏幕(会使单击反应变慢)
     _doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapScreen:)];
     _doubleTap.numberOfTapsRequired = 2;
     [self.view addGestureRecognizer:_doubleTap];
-    [_singleTap requireGestureRecognizerToFail:_doubleTap];
     
+    //监听单击屏幕
+    _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapScreen)];
+    [self.view addGestureRecognizer:_singleTap];
+    [_singleTap requireGestureRecognizerToFail:_pan];
+    [_singleTap requireGestureRecognizerToFail:_doubleTap];
+
     //监听长按屏幕
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressScreen:)];
     longPress.minimumPressDuration = 0.5;
@@ -233,6 +241,49 @@
 }
 
 
+- (void)show{
+    self.view.hidden = YES; //先加载, 在放大动画的同时可以下载图片, 缩放完了再显示
+    
+    [_presentedByVC presentViewController:self animated:NO completion:^{
+        [UIApplication sharedApplication].statusBarHidden = YES;
+    }];
+    
+    CGFloat offsetY = _currentIndex * (screenWidth + photoPadding);
+    self.collectionView.contentOffset = CGPointMake(offsetY, 0);
+    
+    [self setCounterWithTag:_currentIndex totalCount:MAX(_urls.count, _visibleImgViewCount)];
+}
+
+
+- (UIImage *)createImageWithColor:(UIColor *)color{
+    
+    // 1.开启上下文
+    CGRect rect=CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    
+    // 2.填充颜色
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    
+    // 3.取出图像, 关闭上下文
+    UIImage *theImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return theImage;
+}
+
+
+- (UIImage *)captureScreen:(UIView *)viewToCapture {
+    UIGraphicsBeginImageContextWithOptions(viewToCapture.bounds.size, YES, [UIScreen mainScreen].scale);
+    [viewToCapture.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return viewImage;
+}
+
+
+#pragma mark - userInteraction
 - (void)singleTapScreen{
     _singleTap.enabled = NO;
     _doubleTap.enabled = NO;
@@ -295,36 +346,11 @@
 }
 
 
-- (void)show{
-    self.view.hidden = YES; //先加载, 在放大动画的同时可以下载图片, 缩放完了再显示
+- (void)panScreen:(UIPanGestureRecognizer *)pan{
+    CGPoint point = [pan locationInView:self.view];
     
-    [_presentedByVC presentViewController:self animated:NO completion:^{
-        [UIApplication sharedApplication].statusBarHidden = YES;
-    }];
-
-    CGFloat offsetY = _currentIndex * (screenWidth + photoPadding);
-    self.collectionView.contentOffset = CGPointMake(offsetY, 0);
-    
-    [self setCounterWithTag:_currentIndex totalCount:MAX(_urls.count, _visibleImgViewCount)];
-}
-
-
-- (UIImage *)createImageWithColor:(UIColor *)color{
-    
-    // 1.开启上下文
-    CGRect rect=CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
-    UIGraphicsBeginImageContext(rect.size);
-    
-    // 2.填充颜色
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, [color CGColor]);
-    CGContextFillRect(context, rect);
-    
-    // 3.取出图像, 关闭上下文
-    UIImage *theImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return theImage;
+    NSLog(@"%@", NSStringFromCGPoint(point));
+#warning 写到这里了!
 }
 
 
