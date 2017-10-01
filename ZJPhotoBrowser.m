@@ -36,7 +36,6 @@
     BOOL _isGestureViewChanged;
     UITapGestureRecognizer *_singleTap;
     UITapGestureRecognizer *_doubleTap;
-    UIPanGestureRecognizer *_pan;
 }
 
 - (void)showPhotoBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;{
@@ -98,10 +97,6 @@
 
 - (void)prepared{
     [self createColloctionView];
-    
-    //滑动关闭手势
-    _pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panScreen:)];
-    [self.view addGestureRecognizer:_pan];
     
     //监听双击屏幕(会使单击反应变慢)
     _doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapScreen:)];
@@ -343,14 +338,6 @@
             self.longPressScreenBlock();
         }
     }
-}
-
-
-- (void)panScreen:(UIPanGestureRecognizer *)pan{
-    CGPoint point = [pan locationInView:self.view];
-    
-    NSLog(@"%@", NSStringFromCGPoint(point));
-#warning 写到这里了!
 }
 
 
