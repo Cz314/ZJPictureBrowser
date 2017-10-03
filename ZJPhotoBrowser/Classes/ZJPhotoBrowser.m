@@ -106,7 +106,6 @@
     //监听单击屏幕
     _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapScreen)];
     [self.view addGestureRecognizer:_singleTap];
-    [_singleTap requireGestureRecognizerToFail:_pan];
     [_singleTap requireGestureRecognizerToFail:_doubleTap];
 
     //监听长按屏幕

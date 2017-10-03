@@ -1,0 +1,28 @@
+{
+  "name": "ZJPhotoBrowser",
+  "version": "0.1.0",
+  "summary": "A simple photo browser",
+  "description": "TODO: A simple photo browser.",
+  "homepage": "https://github.com/syik/ZJPhotoBrowser",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "281925019@qq.com": "Jsoul1227@hotmail.com"
+  },
+  "source": {
+    "git": "https://github.com/syik/ZJPhotoBrowser.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "ZJPhotoBrowser/Classes/**/*",
+  "public_header_files": "ZJPhotoBrowser/Classes/ZJPhotoBrowser.h",
+  "dependencies": {
+    "SDWebImage": [
+
+    ]
+  }
+}
