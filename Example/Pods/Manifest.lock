@@ -7,22 +7,22 @@ PODS:
   - SDWebImage (4.1.0):
     - SDWebImage/Core (= 4.1.0)
   - SDWebImage/Core (4.1.0)
-  - ZJPhotoBrowser (0.1.0):
+  - ZJPictureBrowser (0.1.0):
     - SDWebImage
 
 DEPENDENCIES:
   - FBSnapshotTestCase
-  - ZJPhotoBrowser (from `../`)
+  - ZJPictureBrowser (from `../`)
 
 EXTERNAL SOURCES:
-  ZJPhotoBrowser:
+  ZJPictureBrowser:
     :path: ../
 
 SPEC CHECKSUMS:
   FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
   SDWebImage: 0e435c14e402a6730315a0fb79f95e68654d55a4
-  ZJPhotoBrowser: 923a78ab4e09ebff4bf66afbbf8cb6055d4642da
+  ZJPictureBrowser: 25986c88dd12c28ca8084d93ef8e3e21ef9e839d
 
-PODFILE CHECKSUM: 73f043352605140fa43d0757b4a8622ec585d8a9
+PODFILE CHECKSUM: d741791c2da7a9ced6c36ffb5a60e2a9993dca69
 
 COCOAPODS: 1.3.1

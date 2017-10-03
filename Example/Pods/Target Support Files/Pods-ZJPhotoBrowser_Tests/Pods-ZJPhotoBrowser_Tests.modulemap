@@ -1,6 +1,0 @@
-framework module Pods_ZJPhotoBrowser_Tests {
-  umbrella header "Pods-ZJPhotoBrowser_Tests-umbrella.h"
-
-  export *
-  module * { export * }
-}

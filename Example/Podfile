@@ -1,9 +1,9 @@
 use_frameworks!
 
-target 'ZJPhotoBrowser_Example' do
-  pod 'ZJPhotoBrowser', :path => '../'
+target 'ZJPictureBrowser_Example' do
+  pod 'ZJPictureBrowser', :path => '../'
 
-  target 'ZJPhotoBrowser_Tests' do
+  target 'ZJPictureBrowser_Tests' do
     inherit! :search_paths
 
     pod 'FBSnapshotTestCase'

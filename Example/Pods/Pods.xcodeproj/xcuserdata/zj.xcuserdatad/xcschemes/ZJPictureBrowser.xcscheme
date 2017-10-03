@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'DD231244A44401AE4612FB17ED09A160'
-               BlueprintName = 'SDWebImage'
+               BlueprintIdentifier = '04239D1BE96DFF2EDED393F47722E15A'
+               BlueprintName = 'ZJPictureBrowser'
                ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'SDWebImage.framework'>
+               BuildableName = 'ZJPictureBrowser.framework'>
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

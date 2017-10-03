@@ -1,9 +1,9 @@
-# ZJPhotoBrowser
+# ZJPictureBrowser
 
-[![CI Status](http://img.shields.io/travis/281925019@qq.com/ZJPhotoBrowser.svg?style=flat)](https://travis-ci.org/281925019@qq.com/ZJPhotoBrowser)
-[![Version](https://img.shields.io/cocoapods/v/ZJPhotoBrowser.svg?style=flat)](http://cocoapods.org/pods/ZJPhotoBrowser)
-[![License](https://img.shields.io/cocoapods/l/ZJPhotoBrowser.svg?style=flat)](http://cocoapods.org/pods/ZJPhotoBrowser)
-[![Platform](https://img.shields.io/cocoapods/p/ZJPhotoBrowser.svg?style=flat)](http://cocoapods.org/pods/ZJPhotoBrowser)
+[![CI Status](http://img.shields.io/travis/281925019@qq.com/ZJPictureBrowser.svg?style=flat)](https://travis-ci.org/281925019@qq.com/ZJPictureBrowser)
+[![Version](https://img.shields.io/cocoapods/v/ZJPictureBrowser.svg?style=flat)](http://cocoapods.org/pods/ZJPictureBrowser)
+[![License](https://img.shields.io/cocoapods/l/ZJPictureBrowser.svg?style=flat)](http://cocoapods.org/pods/ZJPictureBrowser)
+[![Platform](https://img.shields.io/cocoapods/p/ZJPictureBrowser.svg?style=flat)](http://cocoapods.org/pods/ZJPictureBrowser)
 
 ## Example
 
@@ -13,11 +13,11 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Installation
 
-ZJPhotoBrowser is available through [CocoaPods](http://cocoapods.org). To install
+ZJPictureBrowser is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'ZJPhotoBrowser'
+pod 'ZJPictureBrowser'
 ```
 
 ## Author
@@ -26,7 +26,7 @@ Jsoul1227@hotmail.com
 
 ## License
 
-ZJPhotoBrowser is available under the MIT license. See the LICENSE file for more info.
+ZJPictureBrowser is available under the MIT license. See the LICENSE file for more info.
 
 ## More Info
 # 效果
@@ -35,12 +35,12 @@ ZJPhotoBrowser is available under the MIT license. See the LICENSE file for more
 
 # 类说明:
 
-##     1.ZJPhotoBrowser 图片浏览器控制器(全屏日历)
+##     1.ZJPictureBrowser 图片浏览器控制器(全屏日历)
 ### attribute:
 
 ```
 longPressScreenBlock(长按照片回调)
-photoBrowserCounterStyle(图片页数指示器样式:数字、圆点)
+counterStyle(图片页数指示器样式:数字、圆点)
 currentImage(正在显示的图片)
 ```
 
@@ -50,7 +50,7 @@ currentImage(正在显示的图片)
 /**
 快速创建对象
 */
-+ (ZJPhotoBrowser *)sharedBrowser;
++ (instancetype)browser;
 
 /**
 传入urls的数组重新加载数据
@@ -64,16 +64,17 @@ currentImage(正在显示的图片)
 @param imgViews 被点击的imgView的数组
 @param index    数组中被点击图片的tag
 */
-- (void)showPhotoBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;
+- (void)showPictureBrowserWithUrls:(NSArray *)urls imgViews:(NSArray *)imgViews clickedIndex:(NSInteger)index presentedBy:(UIViewController *)presentedByVC;
 
 /**
 判断图片浏览器是否在屏幕中
 */
-- (BOOL)isPhotoBrowserVisible;
+- (BOOL)isPictureBrowserVisible;
 ```
 
-##     2.ZJPhotoBrowserCell 图片容器cell
+##     2.ZJPictureBrowserCell 图片容器cell
 ##     3.ZJGestureView 图片缩放容器
 ##     4.ZJWaitingView 图片加载进度视图(饼状、环状)
+
 
 

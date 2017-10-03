@@ -9,12 +9,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-ZJPhotoBrowser_Example.xcscheme</key>
+		<key>Pods-ZJPictureBrowser_Example.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-ZJPhotoBrowser_Tests.xcscheme</key>
+		<key>Pods-ZJPictureBrowser_Tests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -24,7 +24,7 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>ZJPhotoBrowser.xcscheme</key>
+		<key>ZJPictureBrowser.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
