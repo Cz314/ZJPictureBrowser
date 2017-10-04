@@ -288,7 +288,9 @@
         _isGestureViewChanged = YES;
     }
     
-    [self dismissViewControllerAnimated:NO completion:nil];
+    [self dismissViewControllerAnimated:NO completion:^{
+        scrollView.zoomScale = 1;
+    }];
     [self performZoomOutAnimation];
 }
 
