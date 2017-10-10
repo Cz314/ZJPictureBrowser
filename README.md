@@ -31,7 +31,7 @@ ZJPictureBrowser is available under the MIT license. See the LICENSE file for mo
 ## More Info
 # 效果
 
-仿新浪微博共享元素效果, 就不上效果图了
+仿新浪微博共享元素效果, 就不上效果图了, 为什么这么多图片浏览器了还要重复造? 因为细节, 新浪微博有长图, 打开之后滚动关闭动画过度不流畅, 微博也有图片浏览器, 双击放大之后单击关闭过度也不流畅, 另外对于有网络图片与无网络图片, 都可以很好的支持过度.
 
 # 类说明:
 
